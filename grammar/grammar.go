@@ -662,6 +662,226 @@ func (g *Grammar) Invalid() {
 	g.ShowGrammar()
 }
 
+//todo impl remove left factor
+func (g *Grammar) RemoveLeftFactor() error {
+	return nil
+}
+
+func (g *Grammar) Indirect() {
+	remove_index := []int{}
+	for _, vnItem := range g.Vn {
+		ls := g.VnMapindex[vnItem]
+		for _, git := range *ls {
+			already := make(map[string]struct{})
+			utils.ListRemoveOne(ls, git)
+			for j := 0; j < len(*ls); j++ {
+				//todo unite getfirst
+				firstData := g.GetFirst(string(g.NewGrammar[(*ls)[j]].Right[0]), 1)
+				for s := range firstData {
+					already[s] = struct{}{}
+				}
+			}
+			if string(g.NewGrammar[git].Right[0]) <= "z" && string(g.NewGrammar[git].Right[0]) >= "a" || (g.NewGrammar[git].Right[0]) == '@' {
+				continue
+			}
+			if utils.SetIntersects(g.GetFirst(string(g.NewGrammar[git].Right[0]), 1), already) {
+				inner := utils.SetIntersect(g.GetFirst(string(g.NewGrammar[git].Right[0]), 1), already)
+				temp := []string{}
+				//todo leftFactor2
+			}
+		}
+	}
+	/*for(int k=0;k<vn.size();k++)//遍历所有非终结符号
+	{
+	for(int i=0;i<vnMapindex[vn[k]].size();i++)//这些非终结符号的行
+	{
+	//------------------------求除了本规则外的所有规则的first集合--------------------------
+	QSet<QString> already;//已经确定的first集合
+	QVector<int> ls = vnMapindex[vn[k]];//取出所有规则
+	ls.removeOne(vnMapindex[vn[k]][i]);//移除本规则
+	//qDebug()<<"ls"<<ls;
+	for(int j=0;j<ls.size();j++)//将其他规则的first集合全部求出
+	{
+	//qDebug()<<QString(new_grammar[ls[j]]->right[0])<<" "<<get_first(QString(new_grammar[ls[j]]->right[0]), 1, n);
+	already.unite(get_first(QString(new_grammar[ls[j]]->right[0]), 1, n));
+	}
+
+	if((QString(new_grammar[vnMapindex[vn[k]][i]]->right[0]) <= "z" && QString(new_grammar[vnMapindex[vn[k]][i]]->right[0]) >= "a")
+	|| new_grammar[vnMapindex[vn[k]][i]]->right[0] == "@")
+	//如果本规则是终结符号则不需要代入，会在提取直接左公因子中进行提取
+	{
+	continue;
+	}
+	//qDebug()<<"already"<<already;
+	//--------------------------------------------------------------------------------
+
+	//--------------------------查看是否和其他规则的集合有相交---------------------------
+	if(get_first(QString(new_grammar[vnMapindex[vn[k]][i]]->right[0]), 1, n).intersects(already))
+	//如果和其他规则的first集合相交，意味着需要代入
+	{
+	QSet<QString> inter = get_first(QString(new_grammar[vnMapindex[vn[k]][i]]->right[0]), 1, n).intersect(already);//相交的部分
+	QVector<QString> temp;
+	leftFactor2(new_grammar[vnMapindex[vn[k]][i]]->right, inter, 1, n, temp);
+	for(int j=0;j<temp.size();j++)
+	{
+	insertGrammar(new_grammar[vnMapindex[vn[k]][i]]->left, temp[j]);//形成新的规则插入
+	}
+	myInsert(remove_index, vnMapindex[vn[k]][i]);//把本行放入待删除的集合
+	}
+	//-------------------------------------------------------------------------------
+	}
+	}
+
+	remove_qvector_index(remove_index);*/
+}
+
+func (g *Grammar) GetFirst(nt string, layer int) map[string]struct{} {
+	/*
+	 * 字符nt的first集合元素
+	 * param nt: 需要提取的非终结符nt
+	 * param layer: 层数
+	 * param n: 可能发生的错误号
+	 */
+	/*QSet<QString> s;
+	if(!vn.contains(nt))//如果是非终结符号，可以直接返回而不需要存储
+	{
+		s.insert(nt);
+		return s;
+	}
+	else//如果是终结符号
+	{
+		for(int i=0;i<vnMapindex[nt].size();i++)
+		{
+		s += First(new_grammar[vnMapindex[nt][i]]->right, layer, n);//提取该规则的first元素
+		}
+	}
+	//qDebug()<<s;
+	first[nt] = s;//存储
+	return s;*/
+	s := make(map[string]struct{})
+	if !utils.ListIsContains(g.Vn, nt) {
+		s[nt] = struct{}{}
+		return s
+	} else {
+		vnm := g.VnMapindex[nt]
+		for _, item := range *vnm {
+			//todo impl First
+			fData, _ := g.FirstFun(g.NewGrammar[item].Right, layer)
+			for dt := range fData {
+				s[dt] = struct{}{}
+			}
+		}
+		g.First[nt] = &s
+		return s
+	}
+}
+
+func (g *Grammar) FirstFun(right string, layer int) (map[string]struct{}, error) {
+	/*
+	 * 规则right的first集合元素
+	 * param right: 一条规则的右部
+	 * param layer: 层数
+	 * param n: 可能发生的错误号
+	 */
+	/*if(layer > 3)//大于3层就不做了
+	{
+		n = 6;
+		return {};
+	}
+
+	QSet<QString> f;
+	int k = 0;
+	int len = right.length();
+	while(k < len)
+	{
+		QSet<QString> xk;
+		//qDebug()<<right[k]<<endl;
+
+		if(first.find(QString(right[k])) != first.end()) xk = first[QString(right[k])];//如果有存储，则直接使用
+		else xk = get_first(QString(right[k]), layer+1, n);//没有则调用函数
+
+		f = (f + xk).subtract({"@"});//减去@
+		if(!xk.contains("@")) break;//如果不含有@需要马上退出
+		k++;
+	}
+	if(k == len)//如果x1x2...xn的每个符号xi都有@，则本规则必有@
+	{
+		f.insert("@");
+	}
+	return f;*/
+	if layer > 3 {
+		return nil, errors.New("至少存在以下情况之一: \n1.3步以上的推导才产生第一个字符是终结符号的情况;\n2.存在有害文法;\n3.存在间接左递归但没先消除;\n")
+	}
+	f := make(map[string]struct{})
+	k := 0
+	for _, item := range right {
+		xk := make(map[string]struct{})
+		if _, ok := g.First[string(item)]; ok {
+			xk = *g.First[string(item)]
+		} else {
+			xk = g.GetFirst(string(item), layer+1)
+		}
+		for key := range xk {
+			f[key] = struct{}{}
+		}
+		delete(f, "@")
+		if _, ok := xk["@"]; !ok {
+			break
+		}
+		k++
+	}
+	if k == len(right) {
+		f["@"] = struct{}{}
+	}
+	return f, nil
+}
+
+func (g *Grammar) LeftFactor2(rule string, already map[string]struct{}, layer int, can *[]string) error {
+	/*
+	 * 用于获取间接的左公因子
+	 * param rule: 单条规则的右部
+	 * param already: 该条规则的左部已经有的first集合
+	 * param layer: 递归的层数
+	 * param n: 可能出现的错误号
+	 * param can: 所有有间接左公因子的规则
+	 */
+	/*if(layer > 3)//存在三层以上的左递归则返回提示错误
+	{
+		n = 6;
+		return;
+	}
+	QString re = QString(rule[0]);//取出首字母
+	for(int i=0;i<vnMapindex[re].size();i++)//循环这个首字母的所有规则
+	{
+	QString re2 = new_grammar[vnMapindex[re][i]]->right;//取出其规则
+	if(vt.contains(QString(re2[0])))//如果是终结符号则代入
+	{
+	can.append(re2 + rule.mid(1));
+	}
+	else//如果是非终结符号则继续做下一层
+	{
+	leftFactor2(re2+rule.mid(1), already, layer+1, n, can);
+	}
+	}*/
+	if layer > 3 {
+		return errors.New("至少存在以下情况之一: \n1.3步以上的推导才产生第一个字符是终结符号的情况;\n2.存在有害文法;\n3.存在间接左递归但没先消除;")
+	}
+	re := string(rule[0])
+	vnIndex := g.VnMapindex[re]
+	for _, item := range *vnIndex {
+		re2 := g.NewGrammar[item].Right
+		if _, ok := g.Vt[string(re2[0])]; ok {
+			*can = append(*can, re2+rule[1:])
+		} else {
+			err := g.LeftFactor2(re2+rule[1:], already, layer+1, can)
+			if err != nil {
+				return errors.New("至少存在以下情况之一: \n1.3步以上的推导才产生第一个字符是终结符号的情况;\n2.存在有害文法;\n3.存在间接左递归但没先消除;")
+			}
+		}
+	}
+	return nil
+}
+
 /**
 void showGrammar();//显示文法
 

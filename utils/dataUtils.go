@@ -40,3 +40,24 @@ func ListRemoveOne[T string | int](list *[]T, t T) {
 		}
 	}
 }
+
+func SetIntersects[T string | int](set1 map[T]struct{}, set2 map[T]struct{}) bool {
+	flag := false
+	for t := range set2 {
+		if _, ok := set1[t]; ok {
+			flag = true
+			break
+		}
+	}
+	return flag
+}
+
+func SetIntersect[T string | int](set1 map[T]struct{}, set2 map[T]struct{}) map[T]struct{} {
+	result := make(map[T]struct{})
+	for t := range set1 {
+		if _, ok := set2[t]; ok {
+			result[t] = struct{}{}
+		}
+	}
+	return result
+}

@@ -6,14 +6,9 @@ import (
 )
 
 func main() {
-	g, err := grammar.NewGrammar(`S->Be
-B->Ce
-B->Af
-A->Ae|Dg
-C->Cf
-D->f
-E->E
-E->hk`)
+	g, err := grammar.NewGrammar(`S->AbB|Bc
+A->aA|@
+B->d|e`)
 	if err != nil {
 		fmt.Println(err)
 	}
