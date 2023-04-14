@@ -687,10 +687,15 @@ func (g *Grammar) Indirect() {
 			if utils.SetIntersects(g.GetFirst(string(g.NewGrammar[git].Right[0]), 1), already) {
 				inner := utils.SetIntersect(g.GetFirst(string(g.NewGrammar[git].Right[0]), 1), already)
 				temp := []string{}
-				//todo leftFactor2
+				g.LeftFactor2(g.NewGrammar[git].Right, inner, 1, &temp)
+				for _, j := range temp {
+					g.InsertGrammar(g.NewGrammar[git].Left, j)
+				}
+				MyInsert(&remove_index, git)
 			}
 		}
 	}
+	g.remove_qvector_index(remove_index)
 	/*for(int k=0;k<vn.size();k++)//遍历所有非终结符号
 	{
 	for(int i=0;i<vnMapindex[vn[k]].size();i++)//这些非终结符号的行
@@ -733,6 +738,23 @@ func (g *Grammar) Indirect() {
 	}
 
 	remove_qvector_index(remove_index);*/
+}
+
+func (g *Grammar) InsertGrammar(l, r string) {
+	/*
+	 * 插入语法的函数
+	 * param l: 左部
+	 * param r: 右部
+	 */
+	/*grammarNode* g = new grammarNode(l, r);
+	new_grammar.push_back(g);
+	myInsert(vn, l);
+	myInsert(vnMapindex[l], new_grammar.size()-1);*/
+	gNode := newNode(l, r)
+	g.NewGrammar = append(g.NewGrammar, gNode)
+	MyInsert(&g.Vn, l)
+	list, _ := g.VnMapindex[l]
+	MyInsert(list, len(g.NewGrammar)-1)
 }
 
 func (g *Grammar) GetFirst(nt string, layer int) map[string]struct{} {
