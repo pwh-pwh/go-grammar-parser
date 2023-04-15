@@ -12,7 +12,7 @@ B->b`)
 	if err != nil {
 		fmt.Println(err)
 	}
-	//g.Invalid()
+	g.Invalid()
 	//g.ShowGrammar()
 	/*err = g.RemoveLeftFactor()
 	if err != nil {
