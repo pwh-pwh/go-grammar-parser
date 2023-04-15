@@ -35,6 +35,7 @@ type Grammar struct {
 	First         map[string]*map[string]struct{}
 	Follow        map[string]*map[string]struct{}
 	Table         map[string]*map[string]string
+	i2s           int
 }
 
 func NewGrammar(s string) (*Grammar, error) {
@@ -45,6 +46,7 @@ func NewGrammar(s string) (*Grammar, error) {
 	g.First = make(map[string]*map[string]struct{})
 	g.Follow = make(map[string]*map[string]struct{})
 	g.Table = make(map[string]*map[string]string)
+	g.i2s = 945
 	g.TextEdit2Vec(s)
 	err := g.SplitLeftAndRight()
 	if err != nil {
@@ -738,6 +740,124 @@ func (g *Grammar) Indirect() {
 	}
 
 	remove_qvector_index(remove_index);*/
+}
+
+func (g *Grammar) Direct() {
+	remove_index := []int{}
+	for _, value := range g.VnMapindex {
+		if len(*value) != 1 {
+			splits := make(map[string]*[]int)
+			for _, item := range *value {
+				tempQ, ok := splits[string(g.NewGrammar[item].Right[0])]
+				if !ok {
+					tempQ = &[]int{}
+				}
+				*tempQ = append(*tempQ, item)
+				splits[string(g.NewGrammar[item].Right[0])] = tempQ
+			}
+			for _, temp2 := range splits {
+				if len(*temp2) == 1 {
+					continue
+				}
+				s := make([]string, 0)
+				for _, temp2Item := range *temp2 {
+					s = append(s, g.NewGrammar[temp2Item].Right)
+				}
+				//todo impl leftFactor
+				lf := g.LeftFactor(s)
+				ql := strings.Split(lf, "(")
+				if ql[0] != "" {
+					ql[1] = ql[1][:len(ql[1])-1]
+					ql2 := strings.Split(ql[1], "|")
+					for _, ql2Item := range ql2 {
+						g.InsertGrammar(string(int32(g.i2s)), ql2Item)
+					}
+					//new_grammar[temp2[0]]->right = ql[0] + QString(QChar(i2s));//更改第一条的映射
+					//                    i2s++;//新符号的unicode编码+1
+					//
+					//                    temp2.remove(0);//除了更改了映射的行，全部放入待删除集最后删除
+					//                    for(int k=0;k<temp2.size();k++)
+					//                    {
+					//                        myInsert(remove_index, temp2[k]);
+					//                    }
+					g.NewGrammar[(*temp2)[0]].Right = ql[0] + string(int32(g.i2s))
+					g.i2s++
+					*temp2 = append((*temp2)[1:])
+					for _, temp2Item := range *temp2 {
+						MyInsert(&remove_index, temp2Item)
+					}
+				}
+			}
+		}
+	}
+	g.remove_qvector_index(remove_index)
+}
+
+func (g *Grammar) LeftFactor(s []string) string {
+	//-------------------------判断是否还有左公因子-------------------------------
+	/*QString a = QString(s[0][0]);//获取第一条规则的第一个字符
+	QString res = "";
+	bool flag = true;
+	int length = s.size();
+	for(int i=1;i<length;i++)
+	{
+	if(a != QString(s[i][0]))//如果有一个规则没有了公共因子，则跳出
+	{
+	flag = false;
+	break;
+	}
+	}*/
+	a := string(s[0][0])
+	res := ""
+	flag := true
+	for _, item := range s {
+		if a != string(item[0]) {
+			flag = false
+			break
+		}
+	}
+	//---------------------是否有左公因子执行相应的代码段-------------------------
+	/*if(!flag || (flag && a == "@"))//如果已经没有公共因子，以a(b|c)的形式返回
+	{
+		res = "(" + s[0];
+		for(int i=1;i<length;i++)
+		{
+		res = res + "|" + s[i];
+		}
+		res += ")";
+		return res;
+	}
+	else if(flag)//如果还有公因子，递归执行
+	{
+		res = a;
+		for(int i=0;i<length;i++)
+		{
+		s[i] = s[i].mid(1);
+		if(s[i] == "")//如果已经空了，则加上@
+		s[i] = "@";
+		}
+		return res + leftFactor(s);
+	}
+	//------------------------------------------------------------------------
+	return res;*/
+	if !flag || (flag && a == "@") {
+		res = "(" + s[0]
+		for i := 1; i < len(s); i++ {
+			res = res + "|" + s[i]
+		}
+		res += ")"
+		return res
+	} else if flag {
+		res = a
+		for i := 0; i < len(s); i++ {
+			s[i] = s[i][1:]
+			if s[i] == "" {
+				s[i] = "@"
+			}
+		}
+		return res + g.LeftFactor(s)
+	}
+	return res
 }
 
 func (g *Grammar) InsertGrammar(l, r string) {

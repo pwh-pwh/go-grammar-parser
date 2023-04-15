@@ -33,3 +33,21 @@ func TestAddNum(t *testing.T) {
 		fmt.Println(item)
 	}
 }
+
+func insert(num int, arr []int) {
+	arr = append(arr, num)
+}
+
+func TestInsert(t *testing.T) {
+	arr := []int{}
+	insert(1, arr)
+	fmt.Println(arr)
+}
+
+func TestMap(t *testing.T) {
+	m := make(map[string]*[]int)
+	q := m["aa"]
+	q = &[]int{1, 2}
+	fmt.Println(m)
+	fmt.Println(q)
+}
