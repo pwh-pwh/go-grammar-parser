@@ -1,6 +1,7 @@
 package grammar
 
 import (
+	"errors"
 	"grammar_parser_/utils"
 	"strings"
 )
@@ -98,4 +99,56 @@ func (g *Grammar) Direct() {
 		}
 	}
 	g.remove_qvector_index(remove_index)
+}
+
+func (g *Grammar) LeftFactor2(rule string, already map[string]struct{}, layer int, can *[]string) error {
+	if layer > 3 {
+		return errors.New("至少存在以下情况之一: \n1.3步以上的推导才产生第一个字符是终结符号的情况;\n2.存在有害文法;\n3.存在间接左递归但没先消除;")
+	}
+	re := string(rule[0])
+	vnIndex := g.VnMapindex[re]
+	for _, item := range *vnIndex {
+		re2 := g.NewGrammar[item].Right
+		if _, ok := g.Vt[string(re2[0])]; ok {
+			*can = append(*can, re2+rule[1:])
+		} else {
+			err := g.LeftFactor2(re2+rule[1:], already, layer+1, can)
+			if err != nil {
+				return errors.New("至少存在以下情况之一: \n1.3步以上的推导才产生第一个字符是终结符号的情况;\n2.存在有害文法;\n3.存在间接左递归但没先消除;")
+			}
+		}
+	}
+	return nil
+}
+
+func (g *Grammar) LeftFactor(s []string) string {
+	//-------------------------判断是否还有左公因子-------------------------------
+	a := string(s[0][0])
+	res := ""
+	flag := true
+	for _, item := range s {
+		if a != string(item[0]) {
+			flag = false
+			break
+		}
+	}
+	//---------------------是否有左公因子执行相应的代码段-------------------------
+	if !flag || (flag && a == "@") {
+		res = "(" + s[0]
+		for i := 1; i < len(s); i++ {
+			res = res + "|" + s[i]
+		}
+		res += ")"
+		return res
+	} else if flag {
+		res = a
+		for i := 0; i < len(s); i++ {
+			s[i] = s[i][1:]
+			if s[i] == "" {
+				s[i] = "@"
+			}
+		}
+		return res + g.LeftFactor(s)
+	}
+	return res
 }
