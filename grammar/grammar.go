@@ -664,20 +664,52 @@ func (g *Grammar) Invalid() {
 	g.ShowGrammar()
 }
 
-//todo impl remove left factor
 func (g *Grammar) RemoveLeftFactor() error {
+	/*int x = 0;
+	while(x != new_grammar.size())//循环做左公因子的提取，直到不再改变语法的数量
+	{
+		x = new_grammar.size();
+
+		indirect(n);
+
+		if(n == 6)
+		return;
+
+		duplicate();
+
+		direct(n);
+
+		duplicate();
+	}
+
+	qDebug()<<"remove_left_factor";
+	showGrammar();*/
+	x := 0
+	for x != len(g.NewGrammar) {
+		x = len(g.NewGrammar)
+		//todo vmmap 被清空
+		err := g.Indirect()
+		if err != nil {
+			return err
+		}
+		g.Duplicate()
+		g.Direct()
+		g.Duplicate()
+	}
+	g.ShowGrammar()
 	return nil
 }
 
-func (g *Grammar) Indirect() {
+func (g *Grammar) Indirect() error {
 	remove_index := []int{}
 	for _, vnItem := range g.Vn {
-		ls := g.VnMapindex[vnItem]
+		tempArr := make([]int, len(*g.VnMapindex[vnItem]))
+		copy(tempArr, *g.VnMapindex[vnItem])
+		ls := &tempArr
 		for _, git := range *ls {
 			already := make(map[string]struct{})
 			utils.ListRemoveOne(ls, git)
 			for j := 0; j < len(*ls); j++ {
-				//todo unite getfirst
 				firstData := g.GetFirst(string(g.NewGrammar[(*ls)[j]].Right[0]), 1)
 				for s := range firstData {
 					already[s] = struct{}{}
@@ -689,7 +721,10 @@ func (g *Grammar) Indirect() {
 			if utils.SetIntersects(g.GetFirst(string(g.NewGrammar[git].Right[0]), 1), already) {
 				inner := utils.SetIntersect(g.GetFirst(string(g.NewGrammar[git].Right[0]), 1), already)
 				temp := []string{}
-				g.LeftFactor2(g.NewGrammar[git].Right, inner, 1, &temp)
+				err := g.LeftFactor2(g.NewGrammar[git].Right, inner, 1, &temp)
+				if err != nil {
+					return err
+				}
 				for _, j := range temp {
 					g.InsertGrammar(g.NewGrammar[git].Left, j)
 				}
@@ -698,6 +733,7 @@ func (g *Grammar) Indirect() {
 		}
 	}
 	g.remove_qvector_index(remove_index)
+	return nil
 	/*for(int k=0;k<vn.size();k++)//遍历所有非终结符号
 	{
 	for(int i=0;i<vnMapindex[vn[k]].size();i++)//这些非终结符号的行
@@ -873,8 +909,13 @@ func (g *Grammar) InsertGrammar(l, r string) {
 	gNode := newNode(l, r)
 	g.NewGrammar = append(g.NewGrammar, gNode)
 	MyInsert(&g.Vn, l)
-	list, _ := g.VnMapindex[l]
+	list, ok := g.VnMapindex[l]
+	//todo list is nil?
+	if !ok {
+		list = &[]int{}
+	}
 	MyInsert(list, len(g.NewGrammar)-1)
+	g.VnMapindex[l] = list
 }
 
 func (g *Grammar) GetFirst(nt string, layer int) map[string]struct{} {
