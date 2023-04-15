@@ -8,23 +8,6 @@ import (
 	"strings"
 )
 
-/**
-QVector<grammarNode*> new_grammar;//分左右部的存储
-
-    QMap<QString, QVector<int>> vnMapindex;//非终结符号到所在行的映射
-
-    QVector<QString> vn;//非终结符号集合
-
-    QSet<QString> vr;//只在右部出现的非终结符号集合
-
-    QSet<QString> vt;//终结符号集合
-
-    QMap<QString, QSet<QString>> first;//每个非终结符号的first集合元素
-
-    QMap<QString, QSet<QString>> follow;//每个非终结符号的follow集合元素
-
-    QMap<QString, QMap<QString, QString>> table;//LL(1)分析表
-*/
 type Grammar struct {
 	OriginGrammar []string
 	NewGrammar    []*GrammarNode
@@ -35,7 +18,7 @@ type Grammar struct {
 	First         map[string]*map[string]struct{}
 	Follow        map[string]*map[string]struct{}
 	Table         map[string]*map[string]string
-	i2s           int
+	i2s           int32
 }
 
 func NewGrammar(s string) (*Grammar, error) {
@@ -687,7 +670,6 @@ func (g *Grammar) RemoveLeftFactor() error {
 	x := 0
 	for x != len(g.NewGrammar) {
 		x = len(g.NewGrammar)
-		//todo vmmap 被清空
 		err := g.Indirect()
 		if err != nil {
 			return err
@@ -799,7 +781,6 @@ func (g *Grammar) Direct() {
 				for _, temp2Item := range *temp2 {
 					s = append(s, g.NewGrammar[temp2Item].Right)
 				}
-				//todo impl leftFactor
 				lf := g.LeftFactor(s)
 				ql := strings.Split(lf, "(")
 				if ql[0] != "" {
@@ -910,7 +891,6 @@ func (g *Grammar) InsertGrammar(l, r string) {
 	g.NewGrammar = append(g.NewGrammar, gNode)
 	MyInsert(&g.Vn, l)
 	list, ok := g.VnMapindex[l]
-	//todo list is nil?
 	if !ok {
 		list = &[]int{}
 	}
@@ -948,7 +928,6 @@ func (g *Grammar) GetFirst(nt string, layer int) map[string]struct{} {
 	} else {
 		vnm := g.VnMapindex[nt]
 		for _, item := range *vnm {
-			//todo impl First
 			fData, _ := g.FirstFun(g.NewGrammar[item].Right, layer)
 			for dt := range fData {
 				s[dt] = struct{}{}
@@ -1065,62 +1044,175 @@ func (g *Grammar) LeftFactor2(rule string, already map[string]struct{}, layer in
 	return nil
 }
 
-/**
-void showGrammar();//显示文法
+func (g *Grammar) RemoveLeftRecurse() error {
+	err := g.Indirect2()
+	if err != nil {
+		return err
+	}
+	g.Duplicate()
+	err = g.Direct2()
+	if err != nil {
+		return err
+	}
+	g.Duplicate()
+	g.ShowGrammar()
+	return nil
+}
 
-    void TextEdit2Vector(QString s);//按行分割
+func (g *Grammar) Indirect2() error {
+	/*QVector<int> candidate;
+	QVector<int> remove_index;*/
+	candidate := []int{}
+	remove_index := []int{}
+	for i, graItem := range g.NewGrammar {
+		if utils.ListIndexOf(g.Vn, string(graItem.Right[0])) != -1 &&
+			utils.ListIndexOf(g.Vn, string(graItem.Right[0])) > utils.ListIndexOf(g.Vn, graItem.Left) {
+			candidate = append(candidate, i)
+		}
+	}
+	//-------------------------把可能发生代入间接左递归的规则先加入容器---------------------------
+	/*for(int i=0;i<new_grammar.size();i++)
+	{
+	if(vn.indexOf(QString(new_grammar[i]->right[0])) != -1 &&
+	(vn.indexOf(QString(new_grammar[i]->right[0])) > vn.indexOf(new_grammar[i]->left)))
+	//右部首字母是非终结符并且右部首字母在左部字母之后
+	{
+	candidate.push_back(i);
+	}
+	}*/
+	//qDebug()<<"candidate"<<candidate;
+	//-------------------------------------------------------------------------------------
+	for _, candItem := range candidate {
+		rule := g.NewGrammar[candItem].Right
+		temp := []string{}
+		ut := g.NewGrammar[candItem].Left
+		//todo impl leftRecurse
+		err := g.LeftRecurse(rule, ut, 1, &temp)
+		if err != nil {
+			return err
+		}
+		for _, tempItem := range temp {
+			g.InsertGrammar(ut, tempItem)
+			MyInsert(&remove_index, candItem)
+		}
+	}
+	g.remove_qvector_index(remove_index)
+	return nil
+	//-------------------------如果有间接左递归，则插入代入之后的语法规则---------------------------
+	/*for(int j=0;j<candidate.size();j++)
+	{
+	QString rule = new_grammar[candidate[j]]->right;
+	QVector<QString> temp;
+	QString ut = new_grammar[candidate[j]]->left;
+	leftRecurse(rule, ut, 1, n, temp);//求间接左递归
+	if(n == 6)
+	return;
+	if(temp.size() != 0)//如果有间接左递归，则插入代入之后的语法规则
+	{
+	for(int i=0;i<temp.size();i++)
+	{
+	insertGrammar(ut, temp[i]);
+	myInsert(remove_index, candidate[j]);//把这一行加入待删除行
+	}
+	}
+	}*/
+	//-------------------------------------------------------------------------------------
 
-    void simplize(QString& s, int& n);//化简文法
+	//remove_qvector_index(remove_index);
+}
 
-    void splitLeftandRight(int& n);//分开左部和右部
+func (g *Grammar) LeftRecurse(rule, unterminal string, layer int, can *[]string) error {
+	if layer > 3 {
+		return errors.New("至少存在以下情况之一: \n1.3步以上的推导才产生第一个字符是终结符号的情况;\n2.存在有害文法;\n3.存在间接左递归但没先消除;\n")
+	}
+	re := string(rule[0])
+	//find_index := []int{}
+	flag := false
+	vnMap := g.VnMapindex[re]
+	for _, vmpItem := range *vnMap {
+		re2 := g.NewGrammar[vmpItem].Right
+		if string(re2[0]) == unterminal {
+			*can = append(*can, re2+rule[1:])
+			flag = true
+		} else if utils.ListIsContains(g.Vn, string(re2[0])) &&
+			utils.ListIndexOf(g.Vn, string(re2[0])) > utils.ListIndexOf(g.Vn, re) {
+			g.LeftRecurse(re2+rule[1:], unterminal, layer+1, can)
+			if len(*can) != 0 {
+				flag = true
+			} else {
+				*can = append(*can, re2+rule[1:])
+			}
+			/*leftRecurse(re2+rule.mid(1), unterminal, layer+1, n, can);
+			if(can.size() != 0)//说明深层有左递归
+				flag = true;
+			else
+			can.push_back(re2 + rule.mid(1));*/
+		} else {
+			//can.push_back(re2 + rule.mid(1));
+			*can = append(*can, re2+rule[1:])
+		}
+	}
+	if !flag {
+		*can = []string{}
+	}
+	return nil
+}
 
-    void cannot_arrive();//不可达
-
-    void cannot_terminal();//不可终止
-
-    void invalid();//去有害/多余规则
-
-    void insertGrammar(QString l, QString r);//增加语法
-
-    void remove_invalid(int i);//删除语法
-
-    void remove_qvector_index(QVector<int> remove_index);//删除一批不合法的行
-
-    QString leftFactor(QVector<QString> s);//返回所有规则s的左公因子供直接左公因子调用
-
-    //返回规则rule的间接左公因子的所有规则can，供间接提取左公因子调用
-    void leftFactor2(QString rule, QSet<QString> already, int layer, int& n, QVector<QString>& can);
-
-    void remove_left_factor(int& n);//提取左公因子
-
-    void direct(int& n);//直接提取左公因子
-
-    void indirect(int& n);//间接提取左公因子
-
-    //返回规则rule的间接左递归的所有规则can，供间接消除左递归调用
-    void leftRecurse(QString rule, QString unterminal, int layer, int& n, QVector<QString>& can);
-
-    void remove_left_recurse(int& n);//消除左递归
-
-    void direct2(int &n);//直接消除左递归
-
-    void indirect2(int &n);//间接消除左递归
-
-    QMap<QString, QSet<QString>> get_all_first(int& n);//获取所有符号的first集合
-
-    QSet<QString> get_first(QString nt, int layer, int& n);//获取符号ut的first集合
-
-    QSet<QString> First(QString right, int layer, int& n);//获取规则right的first元素
-
-    void Follow(int& n);//计算所有非终结符号的follow集合
-
-    void setTable(int& n);//计算LL(1)分析表
-
-    int searchFirstLine(QString ut, QString element, int& n);
-
-    void reset_vnMapindex();//重置映射表
-
-    void reset_v();//重置所有符号集合
-
-    void duplicate();//去重
-*/
+func (g *Grammar) Direct2() error {
+	for _, vnItem := range g.Vn {
+		flag := false
+		remove_index := []int{}
+		vmap := g.VnMapindex[vnItem]
+		for _, vmapItem := range *vmap {
+			if g.NewGrammar[vmapItem].Right == vnItem {
+				return errors.New("至少存在以下情况之一: \n1.3步以上的推导才产生第一个字符是终结符号的情况;\n2.存在有害文法;\n3.存在间接左递归但没先消除;\n")
+			}
+		}
+		if len(*vmap) == 1 &&
+			strings.Index(
+				g.NewGrammar[(*vmap)[0]].Right, vnItem,
+			) != -1 {
+			return errors.New("至少存在以下情况之一: \n1.3步以上的推导才产生第一个字符是终结符号的情况;\n2.存在有害文法;\n3.存在间接左递归但没先消除;\n")
+		}
+		for _, vmapItem := range *vmap {
+			if string(g.NewGrammar[vmapItem].Right[0]) == vnItem {
+				ut := vnItem
+				newright := g.NewGrammar[vmapItem].Right
+				//println newright
+				fmt.Println("new_right:" + newright)
+				g.NewGrammar[vmapItem].Left = string(int32(g.i2s))
+				g.NewGrammar[vmapItem].Right = newright[1:] + string(int32(g.i2s))
+				//myInsert(vnMapindex[QString(QChar(i2s))], vnMapindex[vn[j]][i]);//更改映射
+				//remove_index.push_back(vnMapindex[vn[j]][i]);//不止一个直接左递归的时候，会删除映射
+				tI, ok := g.VnMapindex[string(int32(g.i2s))]
+				if !ok {
+					tI = &[]int{}
+				}
+				MyInsert(tI, vmapItem)
+				g.VnMapindex[string(int32(g.i2s))] = tI
+				remove_index = append(remove_index, vmapItem)
+				if !flag {
+					g.InsertGrammar(string(g.i2s), "@")
+					utMap := g.VnMapindex[ut]
+					for _, utMapItem := range *utMap {
+						if string(g.NewGrammar[utMapItem].Right[0]) != ut &&
+							g.NewGrammar[utMapItem].Left != string(g.i2s) {
+							g.NewGrammar[utMapItem].Right += string(g.i2s)
+						}
+					}
+					flag = true
+				}
+			}
+		}
+		//for(int i=0;i<remove_index.size();i++)
+		//        {
+		//            vnMapindex[vn[j]].removeOne(remove_index[i]);//移除原来的间接左递归的映射
+		//        }
+		//        i2s++;//同一个非终结符号做完之后再更新新引入符号
+		for _, item := range remove_index {
+			utils.ListRemoveOne(g.VnMapindex[vnItem], item)
+		}
+		g.i2s++
+	}
+	return nil
+}

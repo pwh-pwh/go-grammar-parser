@@ -61,3 +61,14 @@ func SetIntersect[T string | int](set1 map[T]struct{}, set2 map[T]struct{}) map[
 	}
 	return result
 }
+
+func ListIndexOf[T string | int](list []T, data T) int {
+	res := -1
+	for index, item := range list {
+		if data == item {
+			res = index
+			break
+		}
+	}
+	return res
+}

@@ -6,20 +6,19 @@ import (
 )
 
 func main() {
-	g, err := grammar.NewGrammar(`S->Be
-B->Ce
-B->Af
-A->Ae|Dg
-C->Cf
-D->f
-E->E
-E->hk`)
+	g, err := grammar.NewGrammar(`S->As|B
+A->Sa
+B->b`)
 	if err != nil {
 		fmt.Println(err)
 	}
-	g.Invalid()
+	//g.Invalid()
 	//g.ShowGrammar()
-	err = g.RemoveLeftFactor()
+	/*err = g.RemoveLeftFactor()
+	if err != nil {
+		fmt.Println(err)
+	}*/
+	err = g.RemoveLeftRecurse()
 	if err != nil {
 		fmt.Println(err)
 	}

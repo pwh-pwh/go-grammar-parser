@@ -51,3 +51,9 @@ func TestMap(t *testing.T) {
 	fmt.Println(m)
 	fmt.Println(q)
 }
+
+func TestListNi(t *testing.T) {
+	var arr *[]int = nil
+	list := *arr
+	fmt.Println(list)
+}
