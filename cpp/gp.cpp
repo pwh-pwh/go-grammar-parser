@@ -15,9 +15,6 @@
 
 using namespace std;
 
-void b(char* a) {
-}
-
 //语法树的节点
 struct node
 {
@@ -1145,6 +1142,7 @@ string getTableFunc(string st) {
     grammar.leftRecursionRemoval();
     grammar.leftFactoring();
     grammar.judgeLL1();
+    grammar.getTable();
     return grammar.getTableResult();
 }
 
@@ -1158,6 +1156,46 @@ string getTreeFunc(string st,string gr) {
         grammar.parser(gr,false);
         return grammar.getTreeResult(gr);
     }
+}
+
+const char * b(char* a) {
+  return a;
+}
+
+static string rrStr;
+
+const char * getRR(char *st) {
+    rrStr = getLeftRecursionRemoval(st);
+    //rrStr = "aa";
+    return rrStr.c_str();
+}
+static string rralStr;
+
+const char * getRRAL(char *st) {
+rralStr = getLeftRecursionRAndLeftF(st);
+    return rralStr.c_str();
+}
+
+static string ffStr;
+
+const char * getFirstF(char * st) {
+    ffStr = getFirstFunc(st);
+    return ffStr.c_str();
+}
+static string folStr;
+const char * getFollowF(char * st) {
+    folStr = getFollowFunc(st);
+    return folStr.c_str();
+}
+static string tbStr;
+const char * getTableF(char * st) {
+    tbStr = getTableFunc(st);
+    return tbStr.c_str();
+}
+static string tfStr;
+const char * getTreeF(char * st,char * gr) {
+    tfStr = getTreeFunc(st,gr);
+    return tfStr.c_str();
 }
 
 /*

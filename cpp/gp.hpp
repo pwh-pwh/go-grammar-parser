@@ -9,7 +9,16 @@ extern "C" {
 #endif
 
 
-void b(char* a);
+const char* b(char* a);
+const char * getRR(char *st);
+const char * getRRAL(char *st);
+const char * getFirstF(char * st);
+const char * getFollowF(char * st);
+const char * getTableF(char * st);
+const char * getTreeF(char * st,char * gr);
+
+
+
 
 #ifdef __cplusplus
 }
