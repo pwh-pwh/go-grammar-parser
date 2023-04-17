@@ -507,8 +507,8 @@ public:
         getFirst();
         getFollow();
 
-        printFIRST();
-        printFOLLOW();
+        //printFIRST();
+        //printFOLLOW();
         for(string A:NT)
         {
             for(string apro:production[A])
@@ -583,7 +583,7 @@ public:
                 }
             }
         }
-        printTable();
+        //printTable();
     }
 
     //语法分析过程

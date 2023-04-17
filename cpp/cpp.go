@@ -1,8 +1,6 @@
 package cpp
 
 // #cgo CXXFLAGS: -std=c++17
-// #include "wrap_point.hpp"
-// #include "tcpp.hpp"
 // #include "gp.hpp"
 import "C"
 
@@ -10,11 +8,6 @@ import (
 	"fmt"
 )
 
-func init() {
-	fmt.Println("Hi from Go, about to calculate distance in C++ ...")
-	distance := C.distance_between(1.0, 1.0, 2.0, 2.0)
-	fmt.Printf("Go has result, distance is: %v\n", distance)
-}
 func P() {
 
 	s := `Program->Stmt_seq
@@ -53,4 +46,34 @@ end`
 	//_ = C.getRR(gStr)
 	//fmt.Printf("rrStr:%v", C.GoString(rrStr))
 	//fmt.Printf("data:%v", C.GoString(C.b(C.CString("aa"))))
+}
+
+func GetRR(str string) string {
+	data := C.getRR(C.CString(str))
+	return C.GoString(data)
+}
+
+func GetRRAl(str string) string {
+	data := C.getRRAL(C.CString(str))
+	return C.GoString(data)
+}
+
+func GetFirst(str string) string {
+	data := C.getFirstF(C.CString(str))
+	return C.GoString(data)
+}
+
+func GetFollow(str string) string {
+	data := C.getFollowF(C.CString(str))
+	return C.GoString(data)
+}
+
+func GetTable(str string) string {
+	data := C.getTableF(C.CString(str))
+	return C.GoString(data)
+}
+
+func GetTree(str string, tok string) string {
+	data := C.getTreeF(C.CString(str), C.CString(tok))
+	return C.GoString(data)
 }
