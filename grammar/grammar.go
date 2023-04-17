@@ -51,27 +51,10 @@ func MyInsert[T int | string](vn *[]T, s T) {
 }
 
 func (g *Grammar) TextEdit2Vec(s string) {
-	/**
 	/*
-	     * 将获取的文法文本按行分开
-	     * param s: 需要处理的文法文本
-	*/
-	/*
-		s.remove(" "); //去除多余的空格
-		int index = 0;
-		while(s[index] != '\x0')//如果没达到末尾则继续做
-		{
-			QString temp = "";
-			while(s[index] != '\n')//直到换行符
-			{
-				temp.append(s[index]);
-				index++;
-			}
-			if(temp != "")//如果不是空白行则加入原始文法向量中
-				origin_grammar.push_back(temp);
-			index++;
-		}
-	*/
+	 * 将获取的文法文本按行分开
+	 * param s: 需要处理的文法文本
+	 */
 	s = strings.ReplaceAll(s, " ", "")
 	lines := strings.Split(s, "\n")
 	for _, i := range lines {
@@ -144,17 +127,10 @@ func (g *Grammar) SplitLeftAndRight() error {
 }
 
 func (g *Grammar) Simplize(s *string) error {
-	/*QStringList ql = s.split("(");//左部除去左括号
-	if(ql.size() > 2)
-	{
-		n = 3;
-		return;
-	}*/
 	ql := strings.Split(*s, "(")
 	if len(ql) > 2 {
 		return errors.New("有嵌套左公因子的情况存在，请引入新的非终结符号或直接拆开嵌套左公因子，消除嵌套左公因子的现象")
 	}
-
 	leftsplit := ql[0]
 	ql1 := strings.Split(ql[1], ")")
 	if ql[0] == "" && ql1[0] == "" {
@@ -164,7 +140,6 @@ func (g *Grammar) Simplize(s *string) error {
 	if len(ql1) < 2 {
 		return errors.New("规则右部缺少右括号')'，请重新设计文法")
 	}
-
 	middle := strings.Split(ql1[0], "|")
 	rightsplit := ql1[1]
 	*s = leftsplit + middle[0] + rightsplit
@@ -186,21 +161,6 @@ func (g *Grammar) Duplicate() {
 	/*
 	 * 去重函数，进行双重循环把重复的语法删除
 	 */
-	/*QVector<int> invalid_index;
-	for(int i=0;i<new_grammar.size();i++)
-	{
-	for(int j=i+1;j<new_grammar.size();j++)
-	{
-
-	if(QString::compare(new_grammar[i]->left, new_grammar[j]->left) == 0 &&
-	QString::compare(new_grammar[i]->right, new_grammar[j]->right) == 0)//发现重复的
-	{
-	myInsert(invalid_index, j);
-	}
-	}
-	}
-
-	remove_qvector_index(invalid_index);//对所有重复的行进行删除*/
 	var invalid_index = []int{}
 	for i := 0; i < len(g.NewGrammar); i++ {
 		for j := i + 1; j < len(g.NewGrammar); j++ {
@@ -214,11 +174,6 @@ func (g *Grammar) Duplicate() {
 
 //
 func (g *Grammar) remove_qvector_index(removeIndex []int) {
-	/*qSort(remove_index.begin(), remove_index.end());//为了方便循环删除需要先排序
-	for(int ii=0;ii<remove_index.size();ii++)
-	{
-	remove_invalid(remove_index[ii] - ii);//相应变化ii
-	}*/
 	sort.Ints(removeIndex)
 	for i := 0; i < len(removeIndex); i++ {
 		g.remove_invalid(removeIndex[i] - i)
@@ -230,13 +185,6 @@ func (g *Grammar) remove_invalid(i int) {
 	 * 删除一条规则
 	 * param i: 需要删除的语法规则行号
 	 */
-	/*if(i >= 0 && i < new_grammar.size())
-	{
-		new_grammar.remove(i);
-		reset_vnMapindex();
-		reset_v();
-		//showGrammar();
-	}*/
 	if i >= 0 && i < len(g.NewGrammar) {
 		fmt.Println("inv remove_invalid ngLen:%v", len(g.NewGrammar))
 		g.NewGrammar = append(g.NewGrammar[0:i], g.NewGrammar[i+1:]...)
@@ -249,12 +197,6 @@ func (g *Grammar) reset_vnMapindex() {
 	/*
 	 * 更新<非终结符号，规则行>映射表
 	 */
-	/*vnMapindex.clear();
-	int length = new_grammar.size();
-	for(int i=0;i<length;i++)
-	{
-	myInsert(vnMapindex[new_grammar[i]->left], i);
-	}*/
 	g.VnMapindex = make(map[string]*[]int)
 	length := len(g.NewGrammar)
 	for i := 0; i < length; i++ {
@@ -313,10 +255,6 @@ func (g *Grammar) InsertGrammar(l, r string) {
 	 * param l: 左部
 	 * param r: 右部
 	 */
-	/*grammarNode* g = new grammarNode(l, r);
-	new_grammar.push_back(g);
-	myInsert(vn, l);
-	myInsert(vnMapindex[l], new_grammar.size()-1);*/
 	gNode := newNode(l, r)
 	g.NewGrammar = append(g.NewGrammar, gNode)
 	MyInsert(&g.Vn, l)
