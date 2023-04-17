@@ -2,6 +2,7 @@ package tests
 
 import (
 	"fmt"
+	"grammar_parser_/cpp"
 	"testing"
 )
 
@@ -56,4 +57,9 @@ func TestListNi(t *testing.T) {
 	var arr *[]int = nil
 	list := *arr
 	fmt.Println(list)
+}
+
+func TestCpp(t *testing.T) {
+	cpp.P()
+	//fmt.Println(sum)
 }

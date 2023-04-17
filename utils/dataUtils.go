@@ -72,3 +72,26 @@ func ListIndexOf[T string | int](list []T, data T) int {
 	}
 	return res
 }
+
+func SetAdd[T string | int](set1 map[T]struct{}, set2 map[T]struct{}) map[T]struct{} {
+	result := make(map[T]struct{})
+	for key := range set1 {
+		result[key] = struct{}{}
+	}
+	for key := range set2 {
+		result[key] = struct{}{}
+	}
+	return result
+}
+
+func IsSetEq[T string | int](set1 map[T]struct{}, set2 map[T]struct{}) bool {
+	if len(set1) != len(set2) {
+		return false
+	}
+	for key := range set1 {
+		if _, ok := set2[key]; !ok {
+			return false
+		}
+	}
+	return true
+}

@@ -26,12 +26,17 @@ B->d|e`)
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		ShowFirst(allFirst)
+		ShowForm(allFirst)
 	}
-
+	err = g.FollowFunc()
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		ShowForm(g.Follow)
+	}
 }
 
-func ShowFirst(first map[string]*map[string]struct{}) {
+func ShowForm(first map[string]*map[string]struct{}) {
 	for key, value := range first {
 		fmt.Print("非终结符:" + key + "= ")
 		if value != nil {
@@ -41,4 +46,5 @@ func ShowFirst(first map[string]*map[string]struct{}) {
 		}
 		fmt.Println()
 	}
+	fmt.Println()
 }
