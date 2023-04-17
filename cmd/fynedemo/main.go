@@ -12,6 +12,7 @@ import (
 //go:embed lan.otf
 var TTF []byte
 
+//todo 乱码问题
 func main() {
 	//os.Setenv("FYNE_FONT", "/Users/coderpwh/GolandProjects/grammar_parser/cmd/fynedemo/lan.otf")
 	myApp := app.New()
