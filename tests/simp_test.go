@@ -2,7 +2,7 @@ package tests
 
 import (
 	"fmt"
-	"grammar_parser_/cpp"
+	"grammar_parser/cpp"
 	"testing"
 )
 

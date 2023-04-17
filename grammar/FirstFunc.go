@@ -1,6 +1,6 @@
 package grammar
 
-import "grammar_parser_/utils"
+import "grammar_parser/utils"
 
 func (g *Grammar) GetAllFirst() (map[string]*map[string]struct{}, error) {
 	for _, vnItem := range g.Vn {

@@ -3,7 +3,7 @@ package grammar
 import (
 	"errors"
 	"fmt"
-	"grammar_parser_/utils"
+	"grammar_parser/utils"
 	"sort"
 	"strings"
 )

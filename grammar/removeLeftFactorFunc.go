@@ -2,7 +2,7 @@ package grammar
 
 import (
 	"errors"
-	"grammar_parser_/utils"
+	"grammar_parser/utils"
 	"strings"
 )
 

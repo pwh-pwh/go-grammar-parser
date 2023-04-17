@@ -1,7 +1,7 @@
 package grammar
 
 import (
-	"grammar_parser_/utils"
+	"grammar_parser/utils"
 	"strings"
 )
 

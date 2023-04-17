@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"grammar_parser_/grammar"
+	"grammar_parser/grammar"
 )
 
 func main() {
