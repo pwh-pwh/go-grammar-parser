@@ -12,12 +12,12 @@ B->d|e`)
 	if err != nil {
 		fmt.Println(err)
 	}
-	/*g.Invalid()
+	g.Invalid()
 	//g.ShowGrammar()
 	err = g.RemoveLeftFactor()
 	if err != nil {
 		fmt.Println(err)
-	}*/
+	}
 	err = g.RemoveLeftRecurse()
 	if err != nil {
 		fmt.Println(err)
