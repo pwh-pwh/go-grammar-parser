@@ -21,12 +21,40 @@ type GramTuple struct {
 
 func (s *SpGramService) GetInvalid() ([]GramTuple, error) {
 	s.Invalid()
+	return s.getGrammarData(), nil
+}
+
+func (s *SpGramService) GetRemoveLeftFactor() ([]GramTuple, error) {
+	err := s.RemoveLeftFactor()
+	if err != nil {
+		return nil, err
+	}
+	return s.getGrammarData(), nil
+}
+
+func (s *SpGramService) GetRemoveLeftRecurse() ([]GramTuple, error) {
+	err := s.RemoveLeftRecurse()
+	if err != nil {
+		return nil, err
+	}
+	return s.getGrammarData(), nil
+}
+
+func (s *SpGramService) getGrammarData() []GramTuple {
 	data := []GramTuple{}
+	m := make(map[string]string)
 	for _, item := range s.NewGrammar {
+		if _, ok := m[item.Left]; ok {
+			m[item.Left] = m[item.Left] + "|" + item.Right
+		} else {
+			m[item.Left] = item.Right
+		}
+	}
+	for key, value := range m {
 		data = append(data, GramTuple{
-			Left:  item.Left,
-			Right: item.Right,
+			Left:  key,
+			Right: value,
 		})
 	}
-	return data, nil
+	return data
 }

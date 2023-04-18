@@ -19,6 +19,8 @@ type SpGram struct {
 	firstBtn    *widget.Button
 	followBtn   *widget.Button
 	result      *fyne.Container
+	graStr      string
+	getLocalS   func(s string) (*service.SpGramService, error)
 }
 
 func (sp *SpGram) OpenFile(window fyne.Window) func() {
@@ -44,46 +46,87 @@ func (sp *SpGram) OpenFile(window fyne.Window) func() {
 	}
 }
 
+func (sp *SpGram) listDataLt(f func() ([]service.GramTuple, error)) {
+	sp.result.RemoveAll()
+	result, err := f()
+	if err != nil {
+		sp.result.Add(widget.NewLabel(err.Error()))
+		return
+	}
+	var data = []string{}
+	for _, item := range result {
+		data = append(data, item.Left+"->"+item.Right)
+	}
+	list := widget.NewList(
+		func() int {
+			return len(data)
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("template")
+		},
+		func(i widget.ListItemID, o fyne.CanvasObject) {
+			o.(*widget.Label).SetText(data[i])
+		})
+	sp.result.Add(list)
+}
+
+func (sp *SpGram) GetSer() func(s string) (*service.SpGramService, error) {
+	var ser *service.SpGramService
+	var err error
+	return func(s string) (*service.SpGramService, error) {
+		if s != sp.graStr {
+			sp.graStr = s
+			ser, err = service.NewSpGramService(s)
+		}
+		return ser, err
+	}
+}
+
 func (sp *SpGram) SpOnClick() func() {
 	return func() {
 		sp.result.RemoveAll()
-		gramService, err := service.NewSpGramService(sp.gramEntry.Text)
+		gramService, err := sp.getLocalS(sp.gramEntry.Text)
 		if err != nil {
 			sp.result.Add(widget.NewLabel(err.Error()))
 			return
 		}
-		result, _ := gramService.GetInvalid()
-		//todo list result
-		var data = []string{}
-		for _, item := range result {
-			data = append(data, item.Left+"->"+item.Right)
+		sp.listDataLt(gramService.GetInvalid)
+	}
+}
+
+func (sp *SpGram) rLFOnClick() func() {
+	return func() {
+		sp.result.RemoveAll()
+		gramService, err := sp.getLocalS(sp.gramEntry.Text)
+		if err != nil {
+			sp.result.Add(widget.NewLabel(err.Error()))
+			return
 		}
-		list := widget.NewList(
-			func() int {
-				return len(data)
-			},
-			func() fyne.CanvasObject {
-				return widget.NewLabel("template")
-			},
-			func(i widget.ListItemID, o fyne.CanvasObject) {
-				o.(*widget.Label).SetText(data[i])
-			})
-		sp.result.Add(list)
+		sp.listDataLt(gramService.GetRemoveLeftFactor)
+	}
+}
+
+func (sp *SpGram) rRROnClick() func() {
+	return func() {
+		sp.result.RemoveAll()
+		gramService, err := sp.getLocalS(sp.gramEntry.Text)
+		if err != nil {
+			sp.result.Add(widget.NewLabel(err.Error()))
+			return
+		}
+		sp.listDataLt(gramService.GetRemoveLeftRecurse)
 	}
 }
 
 func (sp *SpGram) InitUi(window fyne.Window) fyne.CanvasObject {
+	sp.getLocalS = sp.GetSer()
 	sp.gramEntry = widget.NewMultiLineEntry()
 	sp.gramEntry.Wrapping = fyne.TextWrapWord
 	sp.gramEntry.SetMinRowsVisible(8)
 	sp.openFileBtn = widget.NewButton("打开文件", sp.OpenFile(window))
 	sp.spBtn = widget.NewButton("化简文法", sp.SpOnClick())
-	sp.rLFBtn = widget.NewButton("消除左公因子", func() {
-
-	})
-	sp.rRRBtn = widget.NewButton("消除左递归", func() {
-
-	})
+	sp.rLFBtn = widget.NewButton("消除左公因子", sp.rLFOnClick())
+	sp.rRRBtn = widget.NewButton("消除左递归", sp.rRROnClick())
 	sp.firstBtn = widget.NewButton("first集合", func() {
 
 	})
