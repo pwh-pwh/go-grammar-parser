@@ -1,0 +1,66 @@
+package service
+
+import (
+	"errors"
+	"grammar_parser/cpp"
+	"strings"
+)
+
+const ERR_MSG = "解析出错，请检查语法"
+
+var CP_ERR = errors.New(ERR_MSG)
+
+func CpGetRR(str string) ([]string, error) {
+	result := cpp.GetRR(str)
+	if result == ERR_MSG {
+		return nil, CP_ERR
+	}
+	return removeNilStr(strings.Split(result, "\n")), nil
+}
+
+func removeNilStr(data []string) []string {
+	var res []string
+	for _, item := range data {
+		if len(item) != 0 {
+			res = append(res, item)
+		}
+	}
+	return res
+}
+
+func CpGetRRAl(str string) ([]string, error) {
+	result := cpp.GetRRAl(str)
+	if result == ERR_MSG {
+		return nil, CP_ERR
+	}
+	return removeNilStr(strings.Split(result, "\n")), nil
+}
+
+func CpGetFirst(str string) ([]GramTuple, error) {
+	result := cpp.GetFirst(str)
+	if result == ERR_MSG {
+		return nil, CP_ERR
+	}
+	return spFirAndFol(removeNilStr(strings.Split(result, "\n"))), nil
+}
+
+func CpGetFollow(str string) ([]GramTuple, error) {
+	result := cpp.GetFollow(str)
+	if result == ERR_MSG {
+		return nil, CP_ERR
+	}
+	return spFirAndFol(removeNilStr(strings.Split(result, "\n"))), nil
+}
+
+func spFirAndFol(data []string) []GramTuple {
+	var res []GramTuple
+	for _, item := range data {
+		split := strings.Split(item, "===")
+		var gt GramTuple
+		gt.Left = split[0]
+		split[1] = split[1][:len(split[1])-1]
+		gt.Right = strings.ReplaceAll(split[1], " ", ",")
+		res = append(res, gt)
+	}
+	return res
+}
