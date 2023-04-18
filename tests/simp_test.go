@@ -101,3 +101,21 @@ func TestT(t *testing.T) {
 		fmt.Println("item:", item)
 	}
 }
+
+/**
+
+(===)===0===1===else===if===other===#===
+statement===~~~===~~~===~~~===~~~===~~~statement->if_stmt~~~statement->other~~~===~~~
+if_stmt===~~~===~~~===~~~===~~~===~~~if_stmt->if ( E ) statement else_part~~~===~~~===~~~
+else_part===~~~===~~~===~~~===~~~else_part->@~~~===~~~===~~~else_part->@~~~
+E===~~~===~~~E->0~~~E->1~~~===~~~===~~~===~~~===~~~
+
+*/
+func TestN2(t *testing.T) {
+	s := "E===~~~===~~~E->0~~~E->1~~~===~~~===~~~===~~~===~~~"
+	split := strings.Split(s, "~~~")
+	fmt.Println(len(split))
+	for _, item := range split {
+		fmt.Println("item:", item)
+	}
+}

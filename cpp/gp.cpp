@@ -1011,6 +1011,7 @@ public:
         {
             //cout<<setw(10)<<A;
             result+=A;
+            result+="@";
             for(string a:x)
             {
                 pair<string,string>symbol;
@@ -1018,10 +1019,12 @@ public:
                 if(!Table[symbol].empty()) {
                     //cout<<setw(15)<<Table[symbol];
                     result+=Table[symbol];
+                    result+="~~~";
                 }
                 else {
                     //cout<<setw(15)<<"----------";
                     result+="===";
+                    result+="~~~";
                 }
             }
             //cout<<endl;

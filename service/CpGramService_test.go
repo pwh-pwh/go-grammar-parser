@@ -64,3 +64,17 @@ func TestCpGetFollow(t *testing.T) {
 		fmt.Printf("left:%v right:%v\n", item.Left, item.Right)
 	}
 }
+
+func TestCpGetTable(t *testing.T) {
+	table, err := CpGetTable(s1)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, item := range table {
+		for _, stItem := range item {
+			fmt.Printf("str:%v  ", stItem)
+		}
+		fmt.Println()
+	}
+}

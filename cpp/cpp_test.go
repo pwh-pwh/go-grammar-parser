@@ -53,7 +53,7 @@ func TestGetRRAl(t *testing.T) {
 }
 
 func TestGetTable(t *testing.T) {
-	fmt.Println(GetTable(s2))
+	fmt.Println(GetTable(s1))
 }
 
 func TestGetTree(t *testing.T) {

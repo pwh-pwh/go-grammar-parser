@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"grammar_parser/cpp"
 	"strings"
 )
@@ -60,7 +61,14 @@ func CpGetTable(str string) ([][]string, error) {
 	orData := removeNilStr(strings.Split(result, "\n"))
 	row := len(orData)
 	arr := make([][]string, row)
+	//log orData[0]
+	fmt.Println("ordata[0]", orData[0])
 	spHeader := strings.Split(orData[0], "===")
+	//log spHeader
+	for _, item := range spHeader {
+		fmt.Printf("item:%v  \n", item)
+	}
+
 	col := len(spHeader)
 	//init arr
 	for index := range arr {
@@ -70,11 +78,29 @@ func CpGetTable(str string) ([][]string, error) {
 	for i := 1; i < col; i++ {
 		arr[0][i] = spHeader[i-1]
 	}
-	//todo
 	for i := 1; i < row; i++ {
-
+		stt := strings.Split(orData[i], "===")[0]
+		arr[i][0] = stt[:len(stt)-1]
 	}
-
+	for i := 1; i < row; i++ {
+		split := strings.Split(orData[i], "~~~")
+		for j := 1; j < col; j++ {
+			if j == 1 {
+				lT := strings.Split(split[0], "@")[1]
+				if lT == "===" {
+					arr[i][j] = "  "
+				} else {
+					arr[i][j] = lT
+				}
+			} else {
+				if split[j-1] == "===" {
+					arr[i][j] = "  "
+				} else {
+					arr[i][j] = split[j-1]
+				}
+			}
+		}
+	}
 	return arr, nil
 }
 
