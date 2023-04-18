@@ -1003,7 +1003,7 @@ public:
             }
             //cout<<setw(15)<<*it1;
             result+=*it1;
-            result+="===";
+            result+="☉";
         }
         //cout<<endl;
         result+="\n";
@@ -1023,7 +1023,7 @@ public:
                 }
                 else {
                     //cout<<setw(15)<<"----------";
-                    result+="===";
+                    result+="☉";
                     result+="~~~";
                 }
             }
