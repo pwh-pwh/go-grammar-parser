@@ -5,18 +5,16 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"grammar_parser/ui"
+
 	//"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
-//go:embed lan.otf
-var TTF []byte
-
-//todo 乱码问题
 func main() {
-	//os.Setenv("FYNE_FONT", "/Users/coderpwh/GolandProjects/grammar_parser/cmd/fynedemo/lan.otf")
 	myApp := app.New()
-	myWindow := myApp.NewWindow("TabContainer Widget")
+	myApp.Settings().SetTheme(&ui.MyTheme{})
+	myWindow := myApp.NewWindow("Grammar parser")
 
 	tabs := container.NewAppTabs(
 		container.NewTabItem("简单文法解析", widget.NewLabel("Hello")),
