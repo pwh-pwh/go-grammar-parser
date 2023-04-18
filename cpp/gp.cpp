@@ -1165,36 +1165,64 @@ const char * b(char* a) {
 static string rrStr;
 
 const char * getRR(char *st) {
+    try {
     rrStr = getLeftRecursionRemoval(st);
+    }catch(std::exception e) {
+    rrStr = "解析出错，请检查语法";
+    }
     //rrStr = "aa";
     return rrStr.c_str();
 }
 static string rralStr;
 
 const char * getRRAL(char *st) {
-rralStr = getLeftRecursionRAndLeftF(st);
+        try {
+        rralStr = getLeftRecursionRAndLeftF(st);
+        }catch(std::exception e) {
+        rralStr = "解析出错，请检查语法";
+}
     return rralStr.c_str();
 }
 
 static string ffStr;
 
 const char * getFirstF(char * st) {
+    try {
     ffStr = getFirstFunc(st);
+    }catch(std::exception e) {
+    ffStr = "解析出错，请检查语法";
+    }
     return ffStr.c_str();
 }
 static string folStr;
 const char * getFollowF(char * st) {
+    try {
     folStr = getFollowFunc(st);
+
+    }catch(std::exception e) {
+    folStr = "解析出错，请检查语法";
+    }
+
     return folStr.c_str();
 }
 static string tbStr;
 const char * getTableF(char * st) {
+    try {
     tbStr = getTableFunc(st);
+
+    }catch(std::exception e) {
+    tbStr = "解析出错，请检查语法";
+    }
     return tbStr.c_str();
 }
 static string tfStr;
 const char * getTreeF(char * st,char * gr) {
+    try {
     tfStr = getTreeFunc(st,gr);
+
+    }catch(std::exception e) {
+    tfStr = "解析出错，请检查语法";
+    }
     return tfStr.c_str();
 }
 

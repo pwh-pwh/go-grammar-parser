@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+const s3 = "aa"
+
 const s1 = `Program->Stmt_seq
 Stmt_seq->Stmt_seq ; Statement|Statement
 Statement->If_stmt|Repeat_stmt|Assign_stmt|Read_stmt|Write_stmt
