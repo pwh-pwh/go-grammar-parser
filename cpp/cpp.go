@@ -4,8 +4,6 @@ package cpp
 // #include "gp.hpp"
 import "C"
 
-//todo try 解决c++ error
-
 func GetRR(str string) string {
 	data := C.getRR(C.CString(str))
 	return C.GoString(data)
