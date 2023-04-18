@@ -118,6 +118,54 @@ func (sp *SpGram) rRROnClick() func() {
 	}
 }
 
+func (sp *SpGram) tableData(f func() ([]service.GramTuple, error)) {
+	first, err := f()
+	if err != nil {
+		sp.result.Add(widget.NewLabel(err.Error()))
+		return
+	}
+	list := widget.NewTable(
+		func() (int, int) {
+			return len(first), 2
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("wide content")
+		},
+		func(i widget.TableCellID, o fyne.CanvasObject) {
+			if i.Col == 0 {
+				o.(*widget.Label).SetText(first[i.Row].Left)
+			} else {
+				o.(*widget.Label).SetText(first[i.Row].Right)
+			}
+		})
+	sp.result.RemoveAll()
+	sp.result.Add(list)
+}
+
+func (sp *SpGram) firstOnClick() func() {
+	return func() {
+		sp.result.RemoveAll()
+		gramService, err := sp.getLocalS(sp.gramEntry.Text)
+		if err != nil {
+			sp.result.Add(widget.NewLabel(err.Error()))
+			return
+		}
+		sp.tableData(gramService.GetFirst)
+	}
+}
+
+func (sp *SpGram) followOnClick() func() {
+	return func() {
+		sp.result.RemoveAll()
+		gramService, err := sp.getLocalS(sp.gramEntry.Text)
+		if err != nil {
+			sp.result.Add(widget.NewLabel(err.Error()))
+			return
+		}
+		sp.tableData(gramService.GetFollow)
+	}
+}
+
 func (sp *SpGram) InitUi(window fyne.Window) fyne.CanvasObject {
 	sp.getLocalS = sp.GetSer()
 	sp.gramEntry = widget.NewMultiLineEntry()
@@ -127,12 +175,8 @@ func (sp *SpGram) InitUi(window fyne.Window) fyne.CanvasObject {
 	sp.spBtn = widget.NewButton("化简文法", sp.SpOnClick())
 	sp.rLFBtn = widget.NewButton("消除左公因子", sp.rLFOnClick())
 	sp.rRRBtn = widget.NewButton("消除左递归", sp.rRROnClick())
-	sp.firstBtn = widget.NewButton("first集合", func() {
-
-	})
-	sp.followBtn = widget.NewButton("follow集合", func() {
-
-	})
+	sp.firstBtn = widget.NewButton("first集合", sp.firstOnClick())
+	sp.followBtn = widget.NewButton("follow集合", sp.followOnClick())
 	sp.result = container.NewMax(widget.NewLabel("结果显示"))
 	gramC := container.NewVBox(widget.NewLabel("文法输入框"), sp.gramEntry)
 	btnsC := container.NewGridWrap(fyne.NewSize(70, 40), sp.openFileBtn, sp.spBtn, sp.rLFBtn, sp.rRRBtn, sp.firstBtn, sp.followBtn)

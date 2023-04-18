@@ -1,6 +1,8 @@
 package service
 
-import "grammar_parser/grammar"
+import (
+	"grammar_parser/grammar"
+)
 
 type SpGramService struct {
 	*grammar.Grammar
@@ -38,6 +40,38 @@ func (s *SpGramService) GetRemoveLeftRecurse() ([]GramTuple, error) {
 		return nil, err
 	}
 	return s.getGrammarData(), nil
+}
+
+func (s *SpGramService) GetFirst() ([]GramTuple, error) {
+	first, err := s.GetAllFirst()
+	if err != nil {
+		return nil, err
+	}
+	return s.TrafTableData(first), nil
+}
+
+func (s *SpGramService) GetFollow() ([]GramTuple, error) {
+	err := s.FollowFunc()
+	if err != nil {
+		return nil, err
+	}
+	return s.TrafTableData(s.Follow), nil
+}
+
+func (s *SpGramService) TrafTableData(data map[string]*map[string]struct{}) []GramTuple {
+	var res []GramTuple
+	for key, value := range data {
+		var gt GramTuple
+		gt.Left = key
+		for vIt := range *value {
+			gt.Right = gt.Right + vIt + ","
+		}
+		if len(gt.Right) != 0 {
+			gt.Right = gt.Right[:len(gt.Right)-1]
+		}
+		res = append(res, gt)
+	}
+	return res
 }
 
 func (s *SpGramService) getGrammarData() []GramTuple {
