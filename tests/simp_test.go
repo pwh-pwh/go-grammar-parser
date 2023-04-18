@@ -2,6 +2,7 @@ package tests
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -56,4 +57,47 @@ func TestListNi(t *testing.T) {
 	var arr *[]int = nil
 	list := *arr
 	fmt.Println(list)
+}
+
+/**
+
+(===)===0===1===else===if===other===#===
+statement===1===1===1===1===statement->if_stmt1statement->other1===1
+if_stmt===1===1===1===1===if_stmt->if ( E ) statementelse_part1===1===1
+else_part===1 ===1 ===1 ===1else_part->@1===1 ===1else_part->@1
+E=== ===E->0E->1=== === === ===
+
+(===)===0===1===else===if===other===#===
+statement===============statement->if_stmtstatement->other===
+if_stmt===============if_stmt->if ( E ) statement else_part======
+else_part============else_part->@======else_part->@
+E======E->0E->1============
+
+(===)===0===1===else===if===other===#===
+statement===============statement->if_stmt###statement->other###===
+if_stmt===============if_stmt->if ( E ) statement else_part###======
+else_part============else_part->@###======else_part->@###
+E======E->0###E->1###============
+
+*/
+
+func TestSSp(t *testing.T) {
+	s := "statement===============statement->if_stmt###statement->other###==="
+	//split := strings.Split(s, "===")
+	index := strings.Index(s, "===")
+	fmt.Println(index)
+	var str string = s[strings.Index(s, "==="):]
+	fmt.Println(str)
+	//todo
+}
+
+func TestT(t *testing.T) {
+	//引入新的分割符号解决
+	//todo
+	s := "===1===1===1===1===1statement->if_stmt1statement->other1===1"
+	split := strings.Split(s, "1")
+	fmt.Println(len(split))
+	for _, item := range split {
+		fmt.Println("item:", item)
+	}
 }

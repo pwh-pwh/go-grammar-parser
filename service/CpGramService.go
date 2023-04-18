@@ -52,6 +52,32 @@ func CpGetFollow(str string) ([]GramTuple, error) {
 	return spFirAndFol(removeNilStr(strings.Split(result, "\n"))), nil
 }
 
+func CpGetTable(str string) ([][]string, error) {
+	result := cpp.GetTable(str)
+	if result == ERR_MSG {
+		return nil, CP_ERR
+	}
+	orData := removeNilStr(strings.Split(result, "\n"))
+	row := len(orData)
+	arr := make([][]string, row)
+	spHeader := strings.Split(orData[0], "===")
+	col := len(spHeader)
+	//init arr
+	for index := range arr {
+		arr[index] = make([]string, col)
+	}
+	arr[0][0] = "  "
+	for i := 1; i < col; i++ {
+		arr[0][i] = spHeader[i-1]
+	}
+	//todo
+	for i := 1; i < row; i++ {
+
+	}
+
+	return arr, nil
+}
+
 func spFirAndFol(data []string) []GramTuple {
 	var res []GramTuple
 	for _, item := range data {
