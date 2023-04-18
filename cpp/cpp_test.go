@@ -57,5 +57,5 @@ func TestGetTable(t *testing.T) {
 }
 
 func TestGetTree(t *testing.T) {
-	fmt.Println(GetTree(s1, token))
+	fmt.Println(GetTree(s2, token))
 }

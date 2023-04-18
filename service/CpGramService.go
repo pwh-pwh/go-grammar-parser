@@ -8,8 +8,10 @@ import (
 )
 
 const ERR_MSG = "解析出错，请检查语法"
+const NOT_LL1 = "该文法不是LL(1)文法"
 
 var CP_ERR = errors.New(ERR_MSG)
+var NOTLL1_ERR = errors.New(NOT_LL1)
 
 func CpGetRR(str string) ([]string, error) {
 	result := cpp.GetRR(str)

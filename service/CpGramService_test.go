@@ -65,8 +65,6 @@ func TestCpGetFollow(t *testing.T) {
 	}
 }
 
-//(☉)☉*☉+☉-☉/☉;☉<☉=☉==☉digit☉else☉end☉id☉if☉read☉repeat☉then☉until☉write☉#☉
-//(☉)☉*☉+☉-☉/☉;☉<☉=☉==☉digit☉else☉end☉id☉if☉read☉repeat☉then☉until☉write☉#☉
 func TestCpGetTable(t *testing.T) {
 	table, err := CpGetTable(s1)
 	if err != nil {
