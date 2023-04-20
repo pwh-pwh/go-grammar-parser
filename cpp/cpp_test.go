@@ -36,6 +36,8 @@ until id == digit ;
 write id
 end`
 
+const spToken = "read id"
+
 func TestGetRR(t *testing.T) {
 	fmt.Println(GetRR(s1))
 }
@@ -57,5 +59,5 @@ func TestGetTable(t *testing.T) {
 }
 
 func TestGetTree(t *testing.T) {
-	fmt.Println(GetTree(s2, token))
+	fmt.Println(GetTree(s1, spToken))
 }

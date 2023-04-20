@@ -118,3 +118,13 @@ func spFirAndFol(data []string) []GramTuple {
 	}
 	return res
 }
+
+func CpGetTree(str string, token string) (string, error) {
+	res := cpp.GetTree(str, token)
+	if res == ERR_MSG {
+		return "", CP_ERR
+	} else if res == NOT_LL1 {
+		return "", NOTLL1_ERR
+	}
+	return res, nil
+}
