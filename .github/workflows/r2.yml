@@ -1,0 +1,55 @@
+name: build
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    name: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        build: [linux, macos, windows]
+        include:
+          - build: linux
+            os: ubuntu-latest
+            rust: nightly
+            target: x86_64-unknown-linux-musl
+            archive-name: rgrep-linux.tar
+          - build: macos
+            os: macos-latest
+            rust: nightly
+            target: x86_64-apple-darwin
+            archive-name: rgrep-macos.tar
+          - build: windows
+            os: windows-2019
+            rust: nightly-x86_64-msvc
+            target: x86_64-pc-windows-msvc
+            archive-name: rgrep-windows.exe
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18.0
+
+      - name: Build binary
+        run: go build -o ${{ matrix.archive-name }} ./cmd/fynedemo
+
+      - name: Build archive
+        shell: bash
+        run: |
+          mkdir archive
+          cd archive
+          if [ "${{ matrix.build }}" = "windows" ]; then
+            cp "${{ matrix.archive-name }}" ./
+          else
+            cp "${{ matrix.target }}" ./
+          fi
+      - name: Upload archive
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.archive-name }}
+          path: archive/${{ matrix.archive-name }}
