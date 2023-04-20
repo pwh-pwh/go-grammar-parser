@@ -13,12 +13,12 @@ jobs:
             os: ubuntu-latest
             rust: nightly
             target: x86_64-unknown-linux-musl
-            archive-name: rgrep-linux.tar
+            archive-name: rgrep-linux
           - build: macos
             os: macos-latest
             rust: nightly
             target: x86_64-apple-darwin
-            archive-name: rgrep-macos.tar
+            archive-name: rgrep-macos
           - build: windows
             os: windows-2019
             rust: nightly-x86_64-msvc
@@ -36,7 +36,9 @@ jobs:
           go-version: 1.18.0
 
       - name: Build binary
-        run: go build -o ${{ matrix.archive-name }} ./cmd/fynedemo
+        run: |
+          go mod tidy
+          go build -o ${{ matrix.archive-name }} ./cmd/fynedemo
 
       - name: Build archive
         shell: bash
