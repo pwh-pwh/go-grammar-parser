@@ -48,7 +48,7 @@ jobs:
           if [ "${{ matrix.build }}" = "windows" ]; then
             cp "${{ matrix.archive-name }}" ./
           else
-            cp "${{ matrix.target }}" ./
+            cp "${{ matrix.archive-name }}" ./
           fi
       - name: Upload archive
         uses: actions/upload-artifact@v1
