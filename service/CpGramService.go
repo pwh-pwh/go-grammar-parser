@@ -55,10 +55,10 @@ func CpGetFollow(str string) ([]GramTuple, error) {
 	return spFirAndFol(removeNilStr(strings.Split(result, "\n"))), nil
 }
 
-func CpGetTable(str string) ([][]string, error) {
+func CpGetTable(str string) ([][]string, string, error) {
 	result := cpp.GetTable(str)
 	if result == ERR_MSG {
-		return nil, CP_ERR
+		return nil, "", CP_ERR
 	}
 	orData := removeNilStr(strings.Split(result, "\n"))
 	row := len(orData)
@@ -103,7 +103,7 @@ func CpGetTable(str string) ([][]string, error) {
 			}
 		}
 	}
-	return arr, nil
+	return arr, result, nil
 }
 
 func spFirAndFol(data []string) []GramTuple {

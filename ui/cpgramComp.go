@@ -2,6 +2,7 @@ package ui
 
 import (
 	"errors"
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -118,6 +119,64 @@ func (cp *CpGram) OpenFile(window fyne.Window) func() {
 	}
 }
 
+func (cp *CpGram) GetTableOnClick(window fyne.Window) func() {
+	return func() {
+		result, reStr, err := service.CpGetTable(cp.gramEntry.Text)
+		cp.result.RemoveAll()
+		if err != nil {
+			cp.result.Add(widget.NewLabel(err.Error()))
+			return
+		}
+		tb := widget.NewTable(func() (int, int) {
+			return len(result), len(result[0])
+		}, func() fyne.CanvasObject {
+			lb := widget.NewLabel("elelel---")
+			lb.Wrapping = fyne.TextWrapOff
+			return lb
+		}, func(id widget.TableCellID, object fyne.CanvasObject) {
+			object.(*widget.Label).SetText(result[id.Row][id.Col])
+		})
+		ct := container.NewVSplit(tb, widget.NewButton("保存结果到文件", cp.saveFile(window, reStr)))
+		cp.result.Add(ct)
+	}
+}
+
+func (cp *CpGram) saveFile(window fyne.Window, str string) func() {
+	return func() {
+		dialog.NewFileSave(func(closer fyne.URIWriteCloser, err error) {
+			if closer == nil || err != nil {
+				return
+			}
+			fmt.Println("保存到文本为:", str)
+			has_w, err := closer.Write([]byte(str))
+			fmt.Println("已经写了", has_w)
+			if err != nil {
+				fmt.Println("写文件出错")
+			}
+			defer closer.Close()
+		}, window).Show()
+	}
+}
+
+func (cp *CpGram) TreeOnClick(window fyne.Window) func() {
+	return func() {
+		cp.result.RemoveAll()
+		if cp.tokenEntry.Text == "" {
+			cp.result.Add(widget.NewLabel("请输入要解析的语句"))
+			return
+		}
+		tree, err := service.CpGetTree(cp.gramEntry.Text, cp.tokenEntry.Text)
+		if err != nil {
+			cp.result.Add(widget.NewLabel(err.Error()))
+			return
+		}
+		egt := widget.NewMultiLineEntry()
+		egt.SetText(tree)
+		ct := container.NewVSplit(egt, widget.NewButton("保存结果到文件", cp.saveFile(window, tree)))
+		cp.result.Add(ct)
+	}
+}
+
 func (cp *CpGram) InitUi(window fyne.Window) fyne.CanvasObject {
 	cp.gramEntry = widget.NewMultiLineEntry()
 	cp.gramEntry.Wrapping = fyne.TextWrapWord
@@ -133,10 +192,8 @@ func (cp *CpGram) InitUi(window fyne.Window) fyne.CanvasObject {
 	cp.rrAlBtn = widget.NewButton("消除左递归", cp.RRAlOnClick())
 	cp.firstBtn = widget.NewButton("first集合", cp.FirstOnClick())
 	cp.followBtn = widget.NewButton("follow集合", cp.FollowOnClick())
-	cp.tableBtn = widget.NewButton("LL(1)文法表", func() {})
-	cp.treeBtn = widget.NewButton("语法树", func() {
-
-	})
+	cp.tableBtn = widget.NewButton("LL(1)文法表", cp.GetTableOnClick(window))
+	cp.treeBtn = widget.NewButton("语法树", cp.TreeOnClick(window))
 	cp.result = container.NewMax(widget.NewLabel("结果显示"))
 	gramC := container.NewVBox(widget.NewLabel("文法输入框"), cp.gramEntry)
 	//加入token框
