@@ -43,9 +43,9 @@ jobs:
           mkdir archive
           cd archive
           if [ "${{ matrix.build }}" = "windows" ]; then
-            cp "./cmd/fynedemo/${{ matrix.archive-name }}" ./
+            cp "../${{ matrix.archive-name }}" ./
           else
-            cp "./cmd/fynedemo/${{ matrix.archive-name }}" ./
+            cp "../${{ matrix.archive-name }}" ./
           fi
       - name: Upload archive
         uses: actions/upload-artifact@v1
