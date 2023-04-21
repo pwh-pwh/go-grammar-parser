@@ -1,0 +1,8 @@
+S->Be
+B->Ce
+B->Af
+A->Ae|Dg
+C->Cf
+D->f
+E->E
+E->hk

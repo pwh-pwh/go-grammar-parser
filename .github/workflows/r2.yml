@@ -13,12 +13,12 @@ jobs:
             os: macos-latest
             rust: nightly
             target: x86_64-apple-darwin
-            archive-name: rgrep-macos
+            archive-name: grammar-macos
           - build: windows
             os: windows-2019
             rust: nightly-x86_64-msvc
             target: x86_64-pc-windows-msvc
-            archive-name: rgrep-windows.exe
+            archive-name: grammar-windows.exe
       fail-fast: false
 
     steps:

@@ -1,0 +1,4 @@
+S->aD
+D->Aq|d
+A->Bk
+B->De

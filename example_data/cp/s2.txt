@@ -1,0 +1,4 @@
+statement->if_stmt|other
+if_stmt->if ( E ) statement else_part
+else_part->else statement|@
+E->0|1

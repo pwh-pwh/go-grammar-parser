@@ -1,0 +1,5 @@
+E -> T G
+G -> a T G | @
+T -> F A
+A -> c F A | @
+F -> hEk | id

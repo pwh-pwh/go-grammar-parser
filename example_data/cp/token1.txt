@@ -1,0 +1,8 @@
+if digit < id
+then id = digit ;
+repeat
+id = id * id ;
+id = id - digit
+until id == digit ;
+write id
+end

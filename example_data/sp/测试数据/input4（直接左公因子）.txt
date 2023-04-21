@@ -1,0 +1,5 @@
+S->aA|C
+A->egD|abc|abd|cde|cdf
+D->D
+C->Fc
+F->c
