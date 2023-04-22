@@ -1,0 +1,52 @@
+int add( void ) { }
+
+int add( void ) {
+    int a;
+}
+
+int add( void ) {
+    return;
+}
+
+int add( void ) {
+    return 1 ;
+}
+
+int add( void ) {
+    if ( 1 )
+    return 1 ;
+    else
+    a = 10 ;
+}
+
+int max( int a , int b ) {
+    if ( a > b )
+    return a ;
+    else
+    return b ;
+}
+
+
+int total( int arr [] , int len ) {
+        int result ;
+        int index  ;
+        index = 0 ;
+        do {
+            result = arr [index] ;
+            index  = index + 1 ;
+        }
+
+         while (
+            index < len
+        ) ;
+        return result ;
+}
+
+int arr [ 2 ] ;
+arr[0] = 9;
+arr[1] = 1;
+int len ;
+len = 2 ;
+
+int r = total (arr, len) ;
+
