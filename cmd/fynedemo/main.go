@@ -10,6 +10,7 @@ import (
 
 var spComp ui.SpGram
 var cpComp ui.CpGram
+var miniC ui.MiniCUi
 
 func main() {
 	myApp := app.New()
@@ -18,6 +19,7 @@ func main() {
 	tabs := container.NewAppTabs(
 		container.NewTabItem("简单文法解析", spComp.InitUi(myWindow)),
 		container.NewTabItem("高级文法解析", cpComp.InitUi(myWindow)),
+		container.NewTabItem("Mini C 语法树生成", miniC.InitUi(myWindow)),
 	)
 	tabs.SetTabLocation(container.TabLocationTrailing)
 	myWindow.Resize(fyne.NewSize(800, 500))
