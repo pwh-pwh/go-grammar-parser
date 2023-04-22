@@ -109,7 +109,7 @@ func (m *MiniCUi) InitUi(window fyne.Window) fyne.CanvasObject {
 	m.openFile = widget.NewButton("打开文件", m.OpenFileOnClick(window))
 	m.image = container.NewMax(widget.NewLabel("png"))
 	gramC := container.NewVBox(widget.NewLabel("请输入Minic语句"), m.gramEntry)
-	btns := container.NewHBox(m.subBtn, m.saveFile)
+	btns := container.NewHBox(m.subBtn, m.saveFile, m.openFile)
 	leftC := container.NewVBox(gramC, btns)
 	return container.NewHSplit(leftC, m.image)
 }
